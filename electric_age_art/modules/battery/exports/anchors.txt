@@ -1,0 +1,45 @@
+ASC Electric Age / battery / 2026-09-27
+Requirement: ART_SPEC.zh-CN.md v1.0. Coordinates describe art, not game definitions.
+Canvas = 32x32 px; footprint = 2x2 cells; cell size = 16 px.
+Origin = body top-left (0,0); +X right; +Y down.
+All exported layer offsets = (0,0); do not auto-trim.
+Rectangles use x,y,width,height; right and bottom bounds excluded.
+
+DEVICE ANCHORS
+jar_centers = (7,16), (16,16), (25,16)
+upper_bus_reference = (6,3)
+return_terminal_reference = (29,3)
+service_panel = (2,23,28,6)
+level_display_recess = (3,25,16,4)
+charge_segment_1 = (4,26,2,2)
+charge_segment_2 = (7,26,2,2)
+charge_segment_3 = (10,26,2,2)
+charge_segment_4 = (13,26,2,2)
+charge_segment_5 = (16,26,2,2)
+flow_display_recess = (23,25,6,4)
+flow_arrow_region = (24,26,5,3)
+flow_reference = (26,27)
+
+INDICATOR COMPOSITION
+Charge_Level is a full-scale example overlay, not an initial charge declaration.
+Show only desired segments or clip according to integration rules; no capacity constants are defined here.
+Flow_Charging: arrow points left (toward bank).
+Flow_Discharging: arrow points right (toward external bus).
+Idle/no current: hide both direction overlays. Charging/discharging overlays are mutually exclusive.
+Damage selects structure only; charge amount/current direction remain independent.
+
+PERSONNEL AND ACCESS INTENT
+Direct operators = 0. No permanently occupied control seat.
+Front service access reference = (16,28); intended lower-front access zone (2,24,28,7).
+Left/right access through lower cell edges; no internal ladder or baked door art.
+This service zone is an occasional maintenance/access intention, not an extra operator assignment.
+It can overlap equipment in side-view projection; it is not a canOccupy or collision rectangle.
+Final crew paths and module placement rules require game-code adaptation.
+
+SHAPE / PREVIEW
+Confirmed rectangular 2x2 footprint; no custom shape mask supplied.
+Transparency, dark cracks and light pixels do not define physical holes.
+No external part extends beyond the canvas.
+layout-anchors-10x.png: blue dashed lines = cell grid and front service access;
+pale-yellow pixels = bus terminals, five segment origins and flow reference.
+Annotations only exist in the preview, never in the source art or production PNGs.

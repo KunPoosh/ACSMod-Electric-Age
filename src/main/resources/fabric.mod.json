@@ -3,9 +3,11 @@
   "id": "electric_age",
   "version": "${version}",
   "name": "Electric Age / 电气时代",
-  "description": "An Acbric MOD exploring generation, storage and electrical loads. Project scaffold; gameplay is not implemented. / 基于 Acbric 的发电、储能与用电 MOD；当前仅有项目骨架，玩法尚未实现。",
+  "description": "Shared ship power, batteries, overload and chain lightning. Development build. / 全船电网、蓄电池、过载与链式闪电。开发测试版本。",
   "authors": ["Poosh"],
+  "license": "MIT",
   "environment": "*",
+  "mixins": ["electric_age.mixins.json"],
   "entrypoints": {
     "acbric": ["net.poosh.electricage.ElectricAgeMod"]
   },

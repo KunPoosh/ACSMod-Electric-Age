@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "net.poosh.electricage.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["ModuleMixin", "AirshipMixin", "ModuleTargetAccess", "CombatMixin", "ModuleTypeMixin", "UniScreenMixin", "ShipEditorMixin", "CommandPanelMixin", "DirectControlPanelMixin", "PlaceShipToolMixin"],
+  "injectors": {"defaultRequire": 1}
+}

@@ -2,7 +2,7 @@
 plugins { id 'java' }
 
 group = 'net.poosh.electricage'
-version = '0.1.0-dev.1'
+version = '0.1.0-dev.4'
 
 def localPaths = new Properties()
 if (file('local.properties').isFile()) {
@@ -52,4 +52,17 @@ processResources {
     filesMatching('fabric.mod.json') { expand(version: project.version) }
 }
 
-jar { archiveBaseName = 'Electric-Age' }
+jar {
+    archiveBaseName = 'Electric-Age'
+    from('LICENSE')
+    from('THIRD_PARTY_NOTICES.md')
+}
+apply from: 'gradle/content.gradle'
+
+// 核心回归不需要游戏类或第三方测试框架；构建必跑，失败即阻止交付。
+tasks.register('coreTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'net.poosh.electricage.simulation.CoreRegression'
+}
+tasks.named('check') { dependsOn tasks.named('coreTest') }

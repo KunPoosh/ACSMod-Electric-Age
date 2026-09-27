@@ -1,12 +1,12 @@
 .gradle/
-build/
-out/
-libs/
-game/
-userdata/
-runtime/
-research/
-decompiled/
+/build/
+/out/
+/libs/
+/game/
+/userdata/
+/runtime/
+/research/
+/decompiled/
 local.properties
 gradle.properties
 *.log
@@ -29,3 +29,15 @@ __pycache__/
 *.py[cod]
 .DS_Store
 Thumbs.db
+
+# Local art-production history; keep final editable sources and build inputs.
+electric_age_art/**/previews/
+electric_age_art/**/scripts/
+electric_age_art/**/checks/
+electric_age_art/modules/*/source/*-blockout.aseprite
+electric_age_art/modules/*/exports/*verification.json
+electric_age_art/modules/*/exports/*check.json
+*.aseprite-bak
+*.aseprite~
+hs_err_pid*.log
+replay_pid*.log

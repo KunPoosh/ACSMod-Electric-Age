@@ -1,0 +1,155 @@
+// 电气时代资源构建：仅按原稿图层合成图集；不改母稿、不重画像素、不打包制作工具。
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import javax.imageio.ImageIO
+import java.awt.image.BufferedImage
+
+def output = layout.buildDirectory.dir('generated/content')
+tasks.register('generateContent') {
+    inputs.file 'content/devices.json'
+    inputs.file 'src/main/resources/electric_age/balance.properties'
+    inputs.dir 'electric_age_art/modules'
+    outputs.dir output
+    doLast {
+        def root=output.get().asFile
+        delete(root) // 本任务独占的 build/generated/content，清除旧布局产物。
+        def nativeRoot=new File(root,'acbric_vanilla')
+        ['ModuleType','ArmourType','SpritesheetBundle','images','strings'].each { new File(nativeRoot,it).mkdirs() }
+        new File(root,'electric_age').mkdirs()
+        def devices=new JsonSlurper().parse(file('content/devices.json'),'UTF-8')
+        def power=new Properties();file('src/main/resources/electric_age/balance.properties').withReader('UTF-8'){power.load(it)}
+        def n={String name -> new BigDecimal(power.getProperty(name)).stripTrailingZeros().toPlainString()}
+        // 原版着色器以单一 texSize 归一化两个轴，图集必须为正方形。
+        def atlas=new BufferedImage(2048,2048,BufferedImage.TYPE_INT_ARGB)
+        def graphics=atlas.createGraphics()
+        def readPart={ key,name ->
+            def f=file("electric_age_art/modules/${key}/exports/${name}.png")
+            if(!f.isFile()) throw new GradleException("Missing production image: $f")
+            def img=ImageIO.read(f)
+            if(img==null) throw new GradleException("Invalid image: $f")
+            img
+        }
+        def positions=[:];def definitions=[];def zh=[];def en=[];int y=0,baseX=0
+        devices.eachWithIndex { device,index ->
+            String key=device.key
+            int width=device.w*16,height=device.h*16
+            int statesPerDamage=key=='battery'?18:4
+            if(y+height*statesPerDamage*2>atlas.height){baseX+=256;y=0}
+            positions[key]=[x:baseX,y:y,w:width,h:height,states:statesPerDamage*2]
+            // 每设备：正常/受损 × 关机/额定/降频/过载，各四帧。
+            (0..1).each { damaged -> (0..<statesPerDamage).each { state -> (0..3).each { frame ->
+                int x=baseX+frame*width, row=y+(damaged*statesPerDamage+state)*height
+                def draw={ name,ox=0,oy=0 -> graphics.drawImage(readPart(key,name),x+(int)ox,row+(int)oy,null) }
+                draw(damaged ? 'body_damaged':'body')
+                switch(key) {
+                    case 'generator':
+                        draw(state==0 ? 'furnace_stopped':'furnace_working')
+                        draw(state==0 ? 'moving_stopped':String.format('moving_%02d',frame))
+                        draw(state==0 ? 'gauge_stopped':'gauge_working');draw('fittings_over')
+                        draw(state==0 ? 'status_stopped':'status_working');break
+                    case 'battery':
+                        int level=state%6,flow=(int)(state/6)
+                        if(level>0) {
+                            def charge=readPart(key,'charge_level');int end=3+level*3
+                            graphics.drawImage(charge,x,row,x+end,row+height,0,0,end,height,null)
+                        }
+                        if(flow>0)draw(flow==1?'flow_charging':'flow_discharging')
+                        break
+                    case 'lift':
+                        if(state==0) draw(damaged ? 'moving_damaged_stopped':'moving_stopped')
+                        else {
+                            draw(damaged ? String.format('crystal_damaged/frame_%02d',frame):String.format('moving_%02d',frame))
+                            def charge=readPart(key,'charge_sheet')
+                            graphics.drawImage(charge,x,row,x+width,row+height,frame*width,0,(frame+1)*width,height,null)
+                        };break
+                    case 'cannon': draw('ammo_rack');draw('round_tray');draw('loader_ram');draw('mount_over');break
+                    case 'lightning': draw(damaged ? 'terminal_damaged':'terminal');break
+                }
+                if(state>0 && !(key in ['generator','battery'])) draw(['','state_rated','state_derated','state_overload'][state])
+            } } }
+            def type=new LinkedHashMap(device);['key','zh','en'].each{type.remove(it)}
+            type.name='EA_'+key.toUpperCase(Locale.ROOT)
+            // MACHINING 的既有奖励，只作建造资格，不给新设备绑定原版属性乘数。
+            type.required='GATLING_GUNS';type.sort=100+index;type.moveDelay=800
+            type.appearance=[src:'ea_devices',x:(int)(baseX/16),y:(int)(y/16)+device.h*(key=='battery'?5:1),w:device.w,h:device.h]
+            if(key=='cannon') type.weaponAppearance=[barrel:[src:'ea_cannon_barrel',x:0,y:0,w:48,h:16],barrelX:24,barrelY:4,recoil:3,
+                shot:[src:'modules',x:149,y:482,w:3,h:3],useSubColorForBarrel:false]
+            if(key=='propulsion') type.externalAppearances=[[x:-1,y:0,appearance:[src:'ea_propeller',interval:100,
+                frames:(0..3).collect{[x:it,y:0,w:1,h:2]}]]]
+            if(key=='lightning') {
+                type.blastDmg=new BigDecimal(power.getProperty('lightning.energy')).intValueExact()
+                // 显式单点伤害，避开原版缺省范围爆炸的伤害 / 4 兼容换算。
+                type.blastSplashRadius=0
+                type.maxRange=new BigDecimal(power.getProperty('lightning.range')).intValueExact();type.optimumRange=type.maxRange
+                type.weaponAppearance=[:];type.external=true;type.armourType='EA_UNARMORED';type.windows=(0..<device.h).collectMany{yy->(0..<device.w).collect{xx->[x:xx,y:yy]}}
+            }
+            definitions.add(type)
+            if(key in ['cannon','propulsion']) definitions.add([name:'FLIPPED_'+type.name,flippedFrom:type.name])
+            ['', 'FLIPPED_'].each { prefix ->
+                String detailZh,detailEn
+                if(key=='generator') {
+                    detailZh="发电 ${n('generator.output')} kW；每 ${device.coalReload/1000} 秒消耗 1 煤炭，空载也耗煤。"
+                    detailEn="Generates ${n('generator.output')} kW. Burns 1 coal per ${device.coalReload/1000} seconds, including idle operation."
+                }else if(key=='battery') {
+                    detailZh="容量 ${n('battery.capacity')} kJ；最大充电 / 放电 ${n('battery.charge')} / ${n('battery.discharge')} kW。用于爆发与应急，补给时充满。"
+                    detailEn="Capacity ${n('battery.capacity')} kJ; charge / discharge limits ${n('battery.charge')} / ${n('battery.discharge')} kW. Burst and emergency reserve; refilled on resupply."
+                }else {
+                    String bonus=(new BigDecimal(power.getProperty(key+'.bonus'))*100).stripTrailingZeros().toPlainString()
+                    String wear=(new BigDecimal(power.getProperty('overload.wear'))*100).stripTrailingZeros().toPlainString()
+                    detailZh="最低 / 额定 / 过载功率 ${n(key+'.minimum')} / ${n(key+'.rated')} / ${n(key+'.overload')} kW。满过载输出 +${bonus}%；实际过载每秒损失最大耐久 ${wear}%，可能起火或殉爆。"
+                    detailEn="Minimum / rated / overload power: ${n(key+'.minimum')} / ${n(key+'.rated')} / ${n(key+'.overload')} kW. Full overload output +${bonus}%; actual overload loses ${wear}% maximum HP per second and may cause fire or detonation."
+                }
+                zh.add('mod_'+prefix+type.name+'=电气时代：'+device.zh);en.add('mod_'+prefix+type.name+'=Electric Age: '+device.en)
+                zh.add('mod_desc_'+prefix+type.name+'='+device.zh+'。'+detailZh)
+                en.add('mod_desc_'+prefix+type.name+'='+device.en+'. '+detailEn)
+            }
+            y+=height*statesPerDamage*2
+        }
+        graphics.dispose()
+        if(y>atlas.height||baseX+256>atlas.width) throw new GradleException('Electrical atlas overflow')
+        ImageIO.write(atlas,'png',new File(nativeRoot,'images/ea_devices.png'))
+        def writeSquare={key,part,name ->
+            def source=readPart(key,part);int size=1
+            while(size<Math.max(source.width,source.height))size*=2
+            def square=new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);def g=square.createGraphics()
+            g.drawImage(source,0,0,null);g.dispose();ImageIO.write(square,'png',new File(nativeRoot,'images/'+name+'.png'))
+        }
+        writeSquare('cannon','barrel','ea_cannon_barrel')
+        writeSquare('propulsion','moving_sheet','ea_propeller')
+        // 原版装甲遮罩也读取模块 bump；缺失会使整组装甲退回无倒角/光照路径。
+        // 生成技术配套图，不改彩色母稿。中性表面 + 轮廓法线，碎片按 8px 区块分组。
+        def bundleNames=['ea_devices','ea_cannon_barrel','ea_propeller']
+        bundleNames.each { name ->
+            def source=ImageIO.read(new File(nativeRoot,'images/'+name+'.png'))
+            def bump=new BufferedImage(source.width,source.height,BufferedImage.TYPE_INT_ARGB)
+            def fragments=new BufferedImage(source.width,source.height,BufferedImage.TYPE_INT_ARGB)
+            def solid={int px,int py -> px>=0&&py>=0&&px<source.width&&py<source.height&&((source.getRGB(px,py)>>>24)&255)>0}
+            for(int py=0;py<source.height;py++)for(int px=0;px<source.width;px++) {
+                int alpha=(source.getRGB(px,py)>>>24)&255
+                int upDown=128,leftRight=128
+                if(alpha>0) {
+                    upDown+=(!solid(px,py-1)?40:0)-(!solid(px,py+1)?40:0)
+                    leftRight+=(!solid(px+1,py)?40:0)-(!solid(px-1,py)?40:0)
+                }
+                bump.setRGB(px,py,(alpha<<24)|(upDown<<16)|(leftRight<<8)|48)
+                // 白色为原版“无碎片/无烧蚀”标记；透明区必须白色，避免受损生成填满背景。
+                int region=1+(int)(px/8)+(int)(py/8)*256
+                fragments.setRGB(px,py,alpha>0?(int)(0xff000000L|region):(int)0xffffffffL)
+            }
+            ImageIO.write(bump,'png',new File(nativeRoot,'images/'+name+'_bump.png'))
+            ImageIO.write(fragments,'png',new File(nativeRoot,'images/'+name+'_fragments.png'))
+        }
+        def writeJson={ relative,obj -> new File(root,relative).setText(JsonOutput.prettyPrint(JsonOutput.toJson(obj)),'UTF-8') }
+        writeJson('electric_age/atlas.json',positions)
+        writeJson('acbric_vanilla/ModuleType/electric_age.json',definitions)
+        writeJson('acbric_vanilla/ArmourType/electric_age.json',[[name:'EA_UNARMORED',hidden:true,hp:0,cost:0,weight:0,blastDmgAbsorb:0,penDmgAbsorb:0,damagedApps:[]]])
+        writeJson('acbric_vanilla/SpritesheetBundle/electric_age.json',bundleNames.collect{[name:it,bump:it+'_bump',fragments:it+'_fragments']})
+        writeJson('acbric_vanilla/info.json',[id:'electric_age',name:[en:'Electric Age',chi:'电气时代'],description:[en:'Electrical devices and shared ship power.',chi:'电气设备与全舰共享电网。'],tags:['acbric']])
+        en.addAll(['EA_POWER=Rated demand / Generation:','EA_CAPACITY=Battery (no-generation support):','EA_OVERLOAD_DEMAND=Overload (weapons / propulsion / all):','EA_INSUFFICIENT_DISCHARGE=limited output'])
+        zh.addAll(['EA_POWER=额定用电 / 发电：','EA_CAPACITY=电池（断电支撑）：','EA_OVERLOAD_DEMAND=过载需求（武器 / 动力 / 全舰）：','EA_INSUFFICIENT_DISCHARGE=放电功率不足'])
+        new File(nativeRoot,'strings/en.properties').setText(en.join('\n')+'\n','UTF-8')
+        new File(nativeRoot,'strings/chi.properties').setText(zh.join('\n')+'\n','UTF-8')
+    }
+}
+sourceSets.main.resources.srcDir output
+tasks.named('processResources'){ dependsOn tasks.named('generateContent') }

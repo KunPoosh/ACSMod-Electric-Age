@@ -1,0 +1,38 @@
+电气浮力装置 / lift — 美术交接锚点
+日期：2026-09-27
+坐标：本体左上 (0,0)，X 向右、Y 向下，单位源像素。
+canvas = 48,32
+grid = 16,16
+footprint = 3,2
+占地依据：ART_SPEC.zh-CN.md v1.0，非 Alpha 反推。
+所有独立层/帧均为48×32，offset=(0,0)，不增加外伸占地。
+
+crystal_reference = 23,14
+crystal_frame_offsets = (0,0),(0,-1),(0,-1),(0,0)
+crystal_stopped_offset = 0,1
+crystal_motion_envelope = 16,2,14,24
+包络按 x,y,width,height，包含正常/受损晶体的全部5帧；可见范围 x16..29，y2..25。
+包络用于叠合检查，不作为碰撞体、安装mask或人员禁区。
+已经预绘的帧包含上述位移；不能再重复施加一次程序位移。
+若以后改为程序运动，应先选定静态基准母图并重新约定亮纹和充能对齐方式。
+
+charge_left_tip = 14,16
+charge_right_tip = 31,16
+crystal_cradle = 23,27
+状态灯区域 = 36,27,5,1
+端点是美术参考，不表示已绑定的电网接口。
+
+operator_count = 1
+operator_control_point = 27,26
+operator_foreground_region_draft = 31,18,10,11
+passage_y_draft = 28
+entry_left_draft = 0,28
+entry_right_draft = 47,28
+白框是设备前景操作意向，可能与机械侧视投影重叠，不承诺站立或通行空间已经通过寻路。
+通道在下排前景横向连通；本轮不画人物、门、梯和舰船装甲。
+正式 canOccupy、门梯位置、mask、物理碰撞与镜像坐标转换由接入方确认。
+
+Working = 1..4, 100ms/frame, loop
+Stopped = 5
+关机晶体依然蓝色；运行充能与晶面变化表示浮晶正在被供能，而非更换为另一种发电核心。
+升力、功耗、HP、过载倍率和实际运动周期：未由美术设定。

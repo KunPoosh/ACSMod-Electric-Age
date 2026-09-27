@@ -1,0 +1,151 @@
+[
+  {
+    "key": "generator",
+    "zh": "燃煤发电机",
+    "en": "Coal Generator",
+    "w": 3,
+    "h": 2,
+    "crew": 2,
+    "hp": 240,
+    "weight": 180,
+    "cost": 180,
+    "fireHP": 144,
+    "explodeHP": 60,
+    "explodeDmg": 80,
+    "coalReload": 10000,
+    "categories": [
+      "RESOURCES"
+    ]
+  },
+  {
+    "key": "battery",
+    "zh": "蓄电池",
+    "en": "Battery",
+    "w": 2,
+    "h": 2,
+    "crew": 0,
+    "hp": 160,
+    "weight": 120,
+    "cost": 120,
+    "fireHP": 96,
+    "explodeHP": 48,
+    "explodeDmg": 50,
+    "categories": [
+      "RESOURCES"
+    ]
+  },
+  {
+    "key": "propulsion",
+    "zh": "电动推进器",
+    "en": "Electric Propulsion",
+    "w": 2,
+    "h": 2,
+    "crew": 1,
+    "hp": 160,
+    "weight": 60,
+    "cost": 100,
+    "fireHP": 80,
+    "explodeHP": 0,
+    "explodeDmg": 0,
+    "propulsion": 0.15,
+    "backOnly": true,
+    "availableFor": [
+      "AIRSHIP"
+    ],
+    "categories": [
+      "PROPULSION"
+    ]
+  },
+  {
+    "key": "lift",
+    "zh": "电气浮力装置",
+    "en": "Electric Lift",
+    "w": 3,
+    "h": 2,
+    "crew": 1,
+    "hp": 200,
+    "weight": 100,
+    "cost": 220,
+    "fireHP": 120,
+    "explodeHP": 70,
+    "explodeDmg": 70,
+    "lift": 3000,
+    "categories": [
+      "LIFT"
+    ]
+  },
+  {
+    "key": "cannon",
+    "zh": "电气火炮",
+    "en": "Electric Loading Cannon",
+    "w": 3,
+    "h": 2,
+    "crew": 2,
+    "hp": 180,
+    "weight": 110,
+    "cost": 180,
+    "fireHP": 108,
+    "explodeHP": 54,
+    "explodeDmg": 50,
+    "isWeapon": true,
+    "isGun": true,
+    "isCannon": true,
+    "frontOnly": true,
+    "penDmg": 80,
+    "blastDmg": 0,
+    "reload": 2000,
+    "clip": 2,
+    "ammoPerClip": 2,
+    "clipReloadTime": 0,
+    "numShots": 1,
+    "shotSpeed": 1.8,
+    "inaccuracy": 0.001,
+    "optimumRange": 600,
+    "fireArc": {
+      "direction": "forwards",
+      "degrees": 70
+    },
+    "muzzleCenterX": 2,
+    "muzzleCenterY": 0.75,
+    "muzzleLength": 2.4375,
+    "categories": [
+      "WEAPONS"
+    ]
+  },
+  {
+    "key": "lightning",
+    "fireSound": {
+      "layers": [{"variations": ["thunder5"], "volume": 0.25}]
+    },
+    "zh": "链式闪电塔",
+    "en": "Chain Lightning Tower",
+    "w": 2,
+    "h": 3,
+    "crew": 1,
+    "hp": 160,
+    "weight": 100,
+    "cost": 200,
+    "fireHP": 80,
+    "explodeHP": 40,
+    "explodeDmg": 40,
+    "isWeapon": true,
+    "topOnly": true,
+    "penDmg": 0,
+    "reload": 4000,
+    "clip": 0,
+    "ammoPerClip": 0,
+    "numShots": 1,
+    "shotSpeed": 1,
+    "inaccuracy": 0.0001,
+    "fireArc": {
+      "direction": "up",
+      "degrees": 360
+    },
+    "muzzleCenterX": 1,
+    "muzzleCenterY": 0.125,
+    "muzzleLength": 0,
+    "categories": [
+      "WEAPONS"
+    ]
+  }
+]

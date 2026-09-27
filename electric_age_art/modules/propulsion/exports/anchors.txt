@@ -1,0 +1,40 @@
+电动推进器 / propulsion — 美术交接锚点
+日期：2026-09-27
+坐标：本体左上 (0,0)，X 向右、Y 向下，单位源像素。
+密度：16 px/格。游戏占地来自 ART_SPEC v1.0，为 2×2；不是由 Alpha 推导。
+
+body_canvas = 32,32
+body_origin = 0,0
+propeller_canvas = 16,32
+propeller_offset_in_body = -16,0
+assembly_canvas = 48,32
+body_origin_in_assembly = 16,0
+propeller_origin_in_assembly = 0,0
+propeller_axis_in_part = 8,16
+propeller_axis_in_body = -8,16
+propeller_axis_in_assembly = 8,16
+shaft_body_join = 0,16
+shaft_propeller_join = 16,16
+说明：propeller_join 的 x=16 为桨叶画布右边界；非最后一个像素索引。
+轴线为侧视横向传动轴 y=16；帧图模拟绕此轴的投影变化，不是屏幕内旋转。
+桨叶外伸范围：本体 x=-16..-1，y=0..31；没有额外越出此画布的像素。
+默认桨叶在左，尚未验证镜像或相邻模块对外伸件的遮挡。
+
+operator_count = 1
+operator_control_point = 12,25
+operator_foreground_region_draft = 9,18,9,11
+passage_y_draft = 28
+entry_left_draft = 0,28
+entry_right_draft = 31,28
+人员区：前景操作位置意向，与机械侧视投影可能重叠，不是已确认可行走的 Alpha 空洞。
+通行意向：下排前景横向接近控制杆；出入口与门梯布置由接入方按 canOccupy/路径确认。
+本轮不烘焙人物、门、梯或船体装甲；无需上层登梯的美术假设并非正式寻路配置。
+
+power_terminal = 19,4
+return_terminal = 25,4
+status_indicator_region = 20,26,6,1
+以上端子是绘画锚点，不绑定游戏电网接口。
+
+帧：Working 1..4 = moving_00..03，每帧100ms，循环；
+Stopped 5 = moving_stopped；损伤桨只在停转第5帧有草图。
+正式ID、canOccupy、mask、碰撞、外伸排序、状态切换接口、实际转速：未绑定。

@@ -1,0 +1,40 @@
+ASC Electric Age / generator / 2026-09-27
+Requirement: ART_SPEC.zh-CN.md v1.0. Art coordinates only; not game binding.
+Canvas = 48 x 32 px. Footprint = 3 x 2 cells. Cell = 16 px.
+Origin = body top-left (0,0); +X right, +Y down. All exported component offsets = (0,0).
+Coordinates below use pixel indices. Rectangle convention: x,y,width,height; right/bottom excluded.
+
+MECHANICAL / VISUAL ANCHORS (drawn and checked)
+rotor_center = (35,20)
+rotor_visual_radius = 5 px
+crank_pin_radius = 3 px
+crank_pin_working_00 = (38,20)
+crank_pin_working_01 = (35,23)
+crank_pin_working_02 = (32,20)
+crank_pin_working_03 = (35,17)
+piston_slider_working_x = 27,26,25,26; piston_axis_y = 20
+gauge_center = (15,10)
+furnace_aperture = (7,20,10,5)
+furnace_effect_reference = (12,23)
+electrical_output_reference = (43,8)
+steam_outlet_reference = (20,8)
+
+CREW / ACCESS INTENT (layout proposal, not canOccupy or collision data)
+operator_count = 2 direct operators, excluding coal transport/repair/firefighting.
+operator_1 = furnace/feed station; foot reference (8,28); foreground service zone (1,17,14,12).
+operator_2 = dynamo/terminal station; foot reference (40,28); foreground service zone (33,17,14,12).
+walkway_intent = lower cell row, left-to-right foreground access, y=16..31; floor reference y=28.
+door_intent = access through left/right lower cell edges; no baked door art.
+ladder_intent = none internal; vertical access through adjacent module if needed.
+These front-plane zones overlap equipment in side-view projection. They are authoring intent only;
+do not derive walkability from the sprite transparency or these rectangles. Final paths need code adaptation.
+
+LAYOUT PREVIEW LEGEND
+previews/layout-anchors-10x.png: blue dashed lines = 16px grid and front service access;
+1 = furnace operator, 2 = dynamo operator; pale-yellow points = rotor/gauge/fire/output references.
+No crew markers, grid, or annotation pixels are included in source art or exported PNGs.
+
+SHAPE
+Use the confirmed rectangular 3x2 footprint as integration baseline.
+No custom physics/occupancy mask is supplied. Alpha gaps do not define holes.
+No part extends beyond the 48x32 body canvas in this version.

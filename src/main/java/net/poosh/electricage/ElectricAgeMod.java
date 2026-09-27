@@ -1,5 +1,5 @@
 /*
- * ElectricAgeMod.java — 电气时代初始化入口；当前仅建立工程，不注册电力玩法或修改游戏状态。
+ * ElectricAgeMod.java — 电气时代初始化入口；资源随 MOD 加载，实例模拟由精确注入接入。
  */
 package net.poosh.electricage;
 
@@ -11,7 +11,8 @@ public final class ElectricAgeMod implements AcbricInitializer {
 
     @Override
     public void onInitializeAcbric(AcbricModContext context) {
-        context.logger().info("Electric Age / 电气时代 initialized; project scaffold only.");
+        net.poosh.electricage.simulation.Balance.DEFAULT.spec("generator");
+        context.logger().info("Electric Age / 电气时代 initialized: ship power, overload and chain lightning.");
     }
 
     @Override

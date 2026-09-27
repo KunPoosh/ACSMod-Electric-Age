@@ -1,0 +1,45 @@
+电动装填大炮 / cannon — 美术交接锚点
+日期：2026-09-27
+需求：ART_SPEC.zh-CN.md v1.1；用户强调消耗常规弹药，电动特征为装填机构，非电磁炮。
+坐标：本体左上(0,0)，X向右、Y向下，单位源像素。
+density = 16 px/cell
+body_canvas = 48,32
+footprint = 3,2
+barrel_canvas = 48,16
+barrel_offset_in_body = 24,4
+assembly_canvas = 72,32
+barrel_pivot_in_part = 8,8
+barrel_pivot_in_body = 32,12
+muzzle_in_part = 47,8
+muzzle_in_body = 71,12
+默认方向朝右。炮口点位于前方出口外沿，炮口暗孔像素位于炮管局部x45..46、y6..9。
+上述炮轴是作者指定的装配基准，非Alpha包围框中心。
+绘制顺序：body→ammo_rack→round_tray→loader_ram→barrel→mount_over→state。
+同部件正常/受损同画布同原点；状态层均与本体(0,0)对齐。
+默认炮管画布位于本体x24..71、y4..19，向本体右边界外伸24px；不增加逻辑占地。
+
+recoil_fit_only_offsets_x = 0,-3,-2,0
+recoil_fit_only_offset_y = 0
+recoil_fit_only_frame_ms = 100
+这只是叠合试验，不是已经绑定的行程、射速或发射动画。
+最大示意后坐时炮管在本体偏移(21,4)，炮口(68,12)。
+装配基准仍为(32,12)；炮管图沿局部轴向滑动，不能将其偏移误作整个炮座平移。
+旋转、镜像、瞄准范围和更长后坐距离尚未验证。
+
+loading_axis_y = 12
+waiting_round_tip = 21,12
+ram_head_reference = 9,12
+loader_motor_reference = 22,24
+ammo_supply_intent = 4,24
+operator_count = 2
+loader_operator_region_draft = 3,16,9,13
+gunner_operator_region_draft = 35,16,10,13
+gunner_control_point = 41,24
+passage_y_draft = 28
+entry_left_draft = 0,28
+entry_right_draft = 47,28
+人员区为侧视设备前景操作意向，可能与机器投影重叠；不能据此直接设置canOccupy。
+左侧接近弹架与装填托盘，右侧接近火炮控制杆；门梯与正式寻路由接入方确认。
+未画人物、UI文字、选中框或舰船装甲。
+弹架和托盘上的数量不规定游戏库存、弹种、单发消耗或装填周期。
+正式ID、安装mask、碰撞与遮挡绑定：未提供。

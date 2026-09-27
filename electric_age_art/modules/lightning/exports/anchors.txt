@@ -1,0 +1,32 @@
+线圈电塔 / lightning — 美术交接锚点
+日期：2026-09-27
+需求基线：ART_SPEC.zh-CN.md v1.2；用户本轮要求制作线圈塔外观。
+坐标：本体左上(0,0)，X向右、Y向下，单位源像素。
+canvas = 32,48
+grid = 16,16
+footprint = 2,3
+component_offsets = 0,0
+arc_origin = 16,2
+orientation = upright
+顶部放电柱包含锚点像素；正常/受损电极保留同一锚点。
+塔身固定朝上。程序电弧由顶部向所选目标延伸，不需要方向帧或旋转炮管。
+无新增外伸画布。静态单帧源稿，未制作亮闪/电弧动画。
+
+上游v1.2已确认：露天顶部安装、无舰体装甲覆盖、点命中不做电弧中途遮挡。
+本次只落实外观和锚点，未验证游戏中的上述行为。
+透明开口不定义命中几何；占地与硬边命中mask分开，未从贴图Alpha派生mask。
+
+operator_count = 1
+operator_foreground_region_draft = 8,34,12,11
+operator_control_point = 10,40
+passage_y_draft = 44
+entry_left_draft = 0,44
+entry_right_draft = 31,44
+白框是设备前景操作意向，可能与机械侧视投影重叠，不是已确认canOccupy。
+露天底座与左右通行仅为布局意向；门梯、维修接近和正式寻路由接入方确认。
+不画人物、选中框、UI文字或舰体装甲。
+
+feed_terminal = 5,28
+status_panel_region = 21,40,6,3
+端子为绘画定位，未绑定游戏电网接口。
+正式ID、物理命中mask、状态接口、镜像坐标及电弧生成逻辑：本轮未实现。

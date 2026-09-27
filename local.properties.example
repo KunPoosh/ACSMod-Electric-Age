@@ -1,0 +1,4 @@
+# Copy to local.properties; use forward slashes. Personal paths are not committed.
+# 复制为 local.properties，使用正斜杠；个人路径不进入 Git。
+frameworkDir=../Acbric/build/external-dist/Acbric
+gameInstallDir=C:/Games/Airships Conquer the Skies

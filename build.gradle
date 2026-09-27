@@ -1,0 +1,55 @@
+// 电气时代构建：仅引用开发者本机依赖，不安装 MOD，不打包游戏或框架。
+plugins { id 'java' }
+
+group = 'net.poosh.electricage'
+version = '0.1.0-dev.1'
+
+def localPaths = new Properties()
+if (file('local.properties').isFile()) {
+    file('local.properties').withReader('UTF-8') { localPaths.load(it) }
+}
+def pathOption = { name -> findProperty(name) ?: localPaths.getProperty(name) }
+def frameworkDir = file(pathOption('frameworkDir') ?: '../Acbric/build/external-dist/Acbric')
+def gameInstallDir = file(pathOption('gameInstallDir') ?: 'missing-game-install')
+def apiJar = new File(frameworkDir, 'core/acbric-api.jar')
+def loaderLibs = new File(frameworkDir, 'loader-libs')
+def gameA = new File(gameInstallDir, 'asplit-A.zip')
+def gameB = new File(gameInstallDir, 'asplit-B.zip')
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+dependencies {
+    compileOnly files(apiJar, gameA, gameB)
+    compileOnly fileTree(dir: loaderLibs, include: ['*.jar'])
+    compileOnly fileTree(dir: new File(gameInstallDir, 'lib'), include: ['*.jar'])
+}
+
+tasks.register('verifyInputs') {
+    doLast {
+        def missing = [apiJar, gameA, gameB].findAll { !it.isFile() }
+        if (!missing.empty) {
+            throw new GradleException('Missing local dependencies / 缺少本机依赖:\n' +
+                missing.join('\n') + '\nSee local.properties.example / 请参照 local.properties.example 配置路径。')
+        }
+        if (fileTree(dir: loaderLibs, include: ['fabric-loader-*.jar']).isEmpty()) {
+            throw new GradleException('Fabric Loader missing / 缺少加载器: ' + loaderLibs)
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    dependsOn tasks.named('verifyInputs')
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-proc:none']
+}
+
+processResources {
+    filteringCharset = 'UTF-8'
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand(version: project.version) }
+}
+
+jar { archiveBaseName = 'Electric-Age' }
